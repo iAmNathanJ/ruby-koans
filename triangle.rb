@@ -36,11 +36,11 @@ def invalid_triangle?(sides)
   end
 
   # Check each side is less than the sum of adjacent sides
-  for i in sides
-    if sides[0] >= sides[1] + sides[2]
+  for i in 1..sides.length
+    next_rotation = sides.rotate(i)
+    if next_rotation[0] >= next_rotation[1] + next_rotation[2]
       return true
     end
-    sides.rotate!(1)
   end
 
   false
