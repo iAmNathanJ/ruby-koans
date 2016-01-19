@@ -30,19 +30,18 @@ end
 
 def invalid_triangle?(sides)
 
-  # Check for zero or negative sides
-  sides.each do |side|
-    return true if side <= 0
-  end
-
-  # Check each side is less than the sum of adjacent sides
   for i in 1..sides.length
-    next_rotation = sides.rotate(i)
-    if next_rotation[0] >= next_rotation[1] + next_rotation[2]
-      return true
-    end
-  end
 
+    next_rotation = sides.rotate(i)
+
+    # Check for zero or negative side
+    return true if next_rotation[0] <= 0
+
+    # Check side is less than the sum of adjacent sides
+    return true if next_rotation[0] >= next_rotation[1] + next_rotation[2]
+
+  end
+  
   false
 end
 
