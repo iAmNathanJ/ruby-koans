@@ -1,54 +1,35 @@
 require_relative '../neo'
-require_relative 'index'
+require_relative 'game'
+require_relative 'player'
+require_relative 'dice'
 
 class AboutDiceGame < Neo::Koan
 
-  def test_dice_set_roll
-    names = ["John", "Smith"]
-    assert_equal ["John", "Smith"], names
+  def test_new_dice_set_requires_one_arg
+    assert_raise(StandardError) do
+      dice = DiceSet.new
+    end
+
+    assert_nothing_raised do
+      dice = DiceSet.new(5)
+    end
   end
 
-  def test_parallel_assignments
-    first_name, last_name = ["John", "Smith"]
-    assert_equal "John", first_name
-    assert_equal "Smith", last_name
+  def test_dice_roll_returns_array
+    dice = DiceSet.new(5)
+
+    result = dice.roll.class
+    assert_equal result, Array
   end
 
-  def test_parallel_assignments_with_extra_values
-    first_name, last_name = ["John", "Smith", "III"]
-    assert_equal "John", first_name
-    assert_equal "Smith", last_name
-  end
+  def test_dice_roll_array_values_are_numbers
+    dice = DiceSet.new(5)
 
-  def test_parallel_assignments_with_splat_operator
-    first_name, *last_name = ["John", "Smith", "III"]
-    assert_equal "John", first_name
-    assert_equal ["Smith", "III"], last_name
-  end
+    roll = dice.roll
 
-  def test_parallel_assignments_with_too_few_variables
-    first_name, last_name = ["Cher"]
-    assert_equal "Cher", first_name
-    assert_equal nil, last_name
-  end
-
-  def test_parallel_assignments_with_subarrays
-    first_name, last_name = [["Willie", "Rae"], "Johnson"]
-    assert_equal ["Willie", "Rae"], first_name
-    assert_equal "Johnson", last_name
-  end
-
-  def test_parallel_assignment_with_one_variable
-    first_name, = ["John", "Smith"]
-    assert_equal "John", first_name
-  end
-
-  def test_swapping_with_parallel_assignment
-    first_name = "Roy"
-    last_name = "Rob"
-    first_name, last_name = last_name, first_name
-    assert_equal "Rob", first_name
-    assert_equal "Roy", last_name
+    roll.each do |die|
+      assert_equal die.class, Fixnum
+    end
   end
 
 end
