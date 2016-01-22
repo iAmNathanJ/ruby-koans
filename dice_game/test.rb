@@ -26,9 +26,18 @@ class AboutDiceGame < Neo::Koan
     dice = DiceSet.new(5)
 
     roll = dice.roll
-
     roll.each do |die|
       assert_equal die.class, Fixnum
+    end
+  end
+
+  def test_player_new_requires_name_arg
+    assert_raise(StandardError) do
+      player = Player.new
+    end
+
+    assert_nothing_raised do
+      player = Player.new( :name => 'name' )
     end
   end
 
