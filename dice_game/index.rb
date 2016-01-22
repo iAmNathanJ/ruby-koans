@@ -94,30 +94,7 @@ class Game
 
 
   #############################################
-  # Game Flow
-  #############################################
-
-  def next_turn
-    current_player = players[0]
-    take("Hit any key to roll the dice...") do |input|
-      if input
-        roll = @dice.roll
-        score = get_score(roll)
-        inform "#{current_player[:name]}'s roll: #{roll}"
-        inform "Score: #{score}"
-        current_player.score += score
-        if current_player >= @play_to
-          # END GAME
-        end
-      end
-    end
-
-    @players.rotate!
-  end
-
-
-  #############################################
-  # Player Management
+  # Players
   #############################################
 
   def add_player(player = {})
@@ -127,11 +104,7 @@ class Game
 
     # Get player name
     take("Player #{@players.length + 1}: Enter your name: ") do |input|
-      if input.empty?
-        raise StandardError.new, "Please enter your player's name..."
-      else
-        player[:name] = input
-      end
+      player[:name] = input
     end
 
     # Get Catchphrase
@@ -151,8 +124,42 @@ class Game
       return add_player(player)
   end
 
+
+  #############################################
+  # Game Flow
+  #############################################
+
+  def next_turn
+    current_player = players[0]
+    take("#{current_player.name}, you're up! Hit any key to roll the dice...") do |input|
+      if input
+        roll = @dice.roll
+        score = get_score(roll)
+        inform "#{current_player.name}'s roll: #{roll}"
+        inform "Score: #{score}"
+        current_player.score += score
+        if current_player.score >= @play_to
+          # END GAME
+          return 'WINNER!'
+        end
+      end
+    end
+
+    @players.rotate!
+    next_turn
+  end
+
+
+  #############################################
+  # Game Start
+  #############################################
+
+  def start
+    add_player
+    next_turn
+  end
+
 end
 
 game = Game.new
-game.add_player
-p game.players
+game.start

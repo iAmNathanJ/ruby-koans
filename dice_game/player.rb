@@ -1,10 +1,11 @@
 class Player
 
-  attr_reader :name, :catchphrase, :score
+  attr_reader :name, :catchphrase
+  attr_accessor :score
 
   def initialize(options = {})
     if options[:name].empty?
-      raise StandardError.new, "Please give your player a name..."
+      raise StandardError.new, "Please choose a name for your player..."
     end
     @name = options[:name]
     @catchphrase = options[:catchphrase]
