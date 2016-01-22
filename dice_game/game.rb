@@ -129,7 +129,7 @@ class Game
         score = get_score(roll)
         inform "Score: #{score}"
 
-        current_player.score += score
+        current_player.update_score(score)
 
         if current_player.score >= @play_to
           # END GAME
