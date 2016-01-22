@@ -33,7 +33,6 @@ class Game
     @dice = DiceSet.new(dice_count)
     @play_to = play_to
     add_players
-    play
   end
 
 
@@ -170,3 +169,4 @@ class Game
 end
 
 game = Game.new
+game.play
