@@ -12,6 +12,10 @@ class Player
     @score = 0
   end
 
+  def to_s
+    @name
+  end
+
   def update_score(score)
     @score += score
   end

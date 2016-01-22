@@ -32,26 +32,8 @@ class Game
     @players = []
     @dice = DiceSet.new(dice_count)
     @play_to = play_to
-  end
-
-  #############################################
-  # Convenience Methods
-  #############################################
-
-  # Get input
-  def take(message)
-    print message.light_yellow
-    yield(gets.chomp)
-  end
-
-  # Messages to player
-  def inform(str, color = "cyan")
-    print "\n#{str.public_send(color)}\n"
-  end
-
-  # Count occurances of a value in an array
-  def tally_item(arr, val)
-    arr.count { |item| item == val }
+    add_players
+    play
   end
 
 
@@ -97,7 +79,7 @@ class Game
   # Players
   #############################################
 
-  def add_player(player = {})
+  def add_players(player = {})
 
     # Allow 4 players max
     return inform "This game is full." unless @players.length < 4
@@ -115,51 +97,76 @@ class Game
     @players << Player.new(player)
 
     take("Add another player? ") do |input|
-      add_player if input == "y" || input == "yes"
+      add_players if input == "y" || input == "yes"
     end
 
     rescue StandardError => e
       inform "! #{e.message}", "red"
       inform "Current player info: #{player}"
-      return add_player(player)
+      return add_players(player)
   end
 
 
   #############################################
-  # Game Flow
+  # Game Play
   #############################################
 
-  def next_turn
+  def play
     current_player = players[0]
-    take("#{current_player.name}, you're up! Hit any key to roll the dice...") do |input|
+    take("#{current_player}, you're up! Hit enter to roll the dice...") do |input|
       if input
+
+        #############################################
+        # ??????????????????
+        # Ruby passes by value always?
+        # the get_score method below mutates the roll value (Array)
+        # But if I print the roll after it hits the get_score method
+        # It reutrns to mutated array.
+        #############################################
+
         roll = @dice.roll
+        inform "#{current_player}'s roll: #{roll}"
+
         score = get_score(roll)
-        inform "#{current_player.name}'s roll: #{roll}"
         inform "Score: #{score}"
+
         current_player.score += score
+
         if current_player.score >= @play_to
           # END GAME
-          return 'WINNER!'
+          inform "#{current_player} is the winner!", "green"
+          return
         end
       end
     end
 
     @players.rotate!
-    next_turn
+    play
   end
 
 
   #############################################
-  # Game Start
+  # Private/Convenience Methods
   #############################################
 
-  def start
-    add_player
-    next_turn
+  private
+
+  # Get input
+  def take(message)
+    print message.light_yellow
+    yield(gets.chomp)
+  end
+
+  # Messages to player
+  def inform(str, color = "cyan")
+    print "\n#{str.public_send(color)}\n"
+  end
+
+  # Count occurances of a value in an array
+  def tally_item(arr, val)
+    arr.count { |item| item == val }
   end
 
 end
 
 game = Game.new
-game.start
