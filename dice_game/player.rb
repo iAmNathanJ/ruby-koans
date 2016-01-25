@@ -13,7 +13,7 @@ class Player
   end
 
   def to_s
-    @name
+    "#{@name}"
   end
 
   def update_score(score)
