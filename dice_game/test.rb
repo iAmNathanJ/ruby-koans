@@ -41,4 +41,22 @@ class AboutDiceGame < Neo::Koan
     end
   end
 
+  ##################################################
+  # ??? to_s should be implicit?
+  ##################################################
+
+  def test_player_to_s_retuns_player_name
+    player = Player.new( :name => 'name' )
+    assert_equal player.to_s, 'name'
+    # assert_equal player, 'name' # implicit call doesn't work?
+  end
+
+  def test_player_scoring
+    player = Player.new( :name => 'name' )
+    assert_equal player.score, 0
+
+    player.update_score(100)
+    assert_equal player.score, 100
+  end
+
 end
