@@ -26,7 +26,7 @@ class Game
   # Setup
   #############################################
 
-  attr_reader :players, :turn, :play_to, :winner
+  attr_reader :players, :play_to, :winner
 
   def initialize(dice_count = 5, play_to = 2000)
     @players = []
@@ -51,7 +51,7 @@ class Game
 
     # Find 3 of kind
     for i in 1..6
-      if tally_item(dice, i) > 2
+      if (dice.count i) > 2
         # Add the 3 of kind score
         i == 1 ? cur_score += 1000 : cur_score += (i * 100)
         # Slice out 3 of kind
@@ -95,7 +95,7 @@ class Game
 
     @players << Player.new(player)
 
-    take("Add another player? ") do |input|
+    take("Add another player? (y or n) ") do |input|
       add_players if input == "y" || input == "yes"
     end
 
@@ -115,14 +115,6 @@ class Game
     take("#{current_player}, you're up! Hit enter to roll the dice...") do |input|
       if input
 
-        #############################################
-        # ??????????????????
-        # Ruby passes by value always?
-        # the get_score method below mutates the roll value (Array)
-        # But if I print the roll after it hits the get_score method
-        # It reutrns to mutated array.
-        #############################################
-
         roll = @dice.roll
         inform "#{current_player}'s roll: #{roll}"
 
@@ -133,7 +125,7 @@ class Game
 
         if current_player.score >= @play_to
           # END GAME
-          inform "#{current_player} is the winner!", "green"
+          inform "#{current_player} is the winner! #{current_player.catchphrase}", "green"
           return
         end
       end
@@ -159,11 +151,6 @@ class Game
   # Messages to player
   def inform(str, color = "cyan")
     print "\n#{str.public_send(color)}\n"
-  end
-
-  # Count occurances of a value in an array
-  def tally_item(arr, val)
-    arr.count { |item| item == val }
   end
 
 end
