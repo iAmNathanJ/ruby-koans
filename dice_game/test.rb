@@ -31,15 +31,6 @@ class AboutDiceGame < Neo::Koan
     end
   end
 
-  def test_player_new_requires_name_arg
-    assert_raise(StandardError) do
-      player = Player.new
-    end
-
-    assert_nothing_raised do
-      player = Player.new( :name => 'name' )
-    end
-  end
 
   ##################################################
   # ??? to_s should be implicit?
@@ -54,9 +45,16 @@ class AboutDiceGame < Neo::Koan
   def test_player_scoring
     player = Player.new( :name => 'name' )
     assert_equal player.score, 0
+  end
 
-    player.update_score(100)
-    assert_equal player.score, 100
+  def test_game_defaults
+    game = Game.new
+
+    # players should start as an empty array
+    assert_equal game.players, []
+
+    # game.dice should be instance of DiceSet class
+    # assert_equal game.dice.instance_of?, DiceSet
   end
 
 end

@@ -17,6 +17,9 @@ require_relative 'dice'
 # include Player class
 require_relative 'player'
 
+# include Console class
+require_relative 'console'
+
 # Colors
 require 'colorize'
 
@@ -26,13 +29,14 @@ class Game
   # Setup
   #############################################
 
-  attr_reader :players, :play_to, :winner
+  attr_reader :players, :play_to, :dice, :winner, :max_players
 
   def initialize(dice_count = 5, play_to = 2000)
     @players = []
     @dice = DiceSet.new(dice_count)
     @play_to = play_to
-    add_players
+    @max_players = 4
+    @winner = nil
   end
 
 
@@ -44,33 +48,29 @@ class Game
   def get_score(dice)
 
     # Initialize score
-    cur_score = 0
+    score = 0
 
     # Sort dice
-    dice.sort!
+    sorted_dice = dice.sort
 
     # Find 3 of kind
     for i in 1..6
-      if (dice.count i) > 2
+      if (sorted_dice.count i) > 2
         # Add the 3 of kind score
-        i == 1 ? cur_score += 1000 : cur_score += (i * 100)
+        i == 1 ? score += 1000 : score += (i * 100)
         # Slice out 3 of kind
-        dice.slice!(dice.index(i), 3)
+        sorted_dice.slice!(sorted_dice.index(i), 3)
+        break
       end
     end
 
     # Get remaining score
-    remaining_score = dice.map do |item|
-      if item == 1
-        100
-      elsif item == 5
-        50
-      else
-        0
-      end
-    end.inject { |acc, val| acc + val } || 0
+    sorted_dice.each do |die|
+      score += 50 if die == 5
+      score += 100 if die == 1
+    end
 
-    cur_score + remaining_score
+    score
   end
 
 
@@ -78,31 +78,21 @@ class Game
   # Players
   #############################################
 
-  def add_players(player = {})
+  def add_player
+
+    player = Player.new
 
     # Allow 4 players max
-    return inform "This game is full." unless @players.length < 4
+    return Console.inform "This game is full." unless players.length < 4
 
-    # Get player name
-    take("Player #{@players.length + 1}: Enter your name: ") do |input|
-      player[:name] = input
-    end
+    # Get player name & catchphrase
+    player.name = Console.take("Player #{players.length + 1}: Enter your name: ")
 
-    # Get Catchphrase
-    take("Do you have a catchphrase? ") do |input|
-      player[:catchphrase] = input
-    end
+    # TODO Check player has at least a name?
 
-    @players << Player.new(player)
+    player.catchphrase = Console.take("Do you have a catchphrase? ")
+    players << player
 
-    take("Add another player? (y or n) ") do |input|
-      add_players if input == "y" || input == "yes"
-    end
-
-    rescue StandardError => e
-      inform "! #{e.message}", "red"
-      inform "Current player info: #{player}"
-      return add_players(player)
   end
 
 
@@ -111,46 +101,38 @@ class Game
   #############################################
 
   def play
-    current_player = players[0]
-    take("#{current_player}, you're up! Hit enter to roll the dice...") do |input|
-      if input
 
-        roll = @dice.roll
-        inform "#{current_player}'s roll: #{roll}"
-
-        score = get_score(roll)
-        inform "Score: #{score}"
-
-        current_player.update_score(score)
-
-        if current_player.score >= @play_to
-          # END GAME
-          inform "#{current_player} is the winner! #{current_player.catchphrase}", "green"
-          return
-        end
-      end
+    for i in (1..max_players)
+      add_player
+      another_player = Console.take("Add player? (y or n) ").upcase
+      break if another_player[0] != 'Y'
     end
 
-    @players.rotate!
-    play
+    while !winner do
+
+      players.each do |current_player|
+
+        go = Console.take("#{current_player}, you're up! Hit enter to roll the dice...")
+        if go
+
+          roll = dice.roll
+          Console.inform "#{current_player}'s roll: #{roll}"
+
+          score = get_score(roll)
+          Console.inform "Score: #{score}"
+
+          current_player.score += score
+
+          if current_player.score >= @play_to
+            # END GAME
+            Console.inform "#{current_player} is the winner! #{current_player.catchphrase}", "green"
+            return
+          end
+        end
+      end
+
+    end
   end
 
-
-  #############################################
-  # Private/Convenience Methods
-  #############################################
-
-  private
-
-  # Get input
-  def take(message)
-    print message.light_yellow
-    yield(gets.chomp)
-  end
-
-  # Messages to player
-  def inform(str, color = "cyan")
-    print "\n#{str.public_send(color)}\n"
-  end
 
 end
